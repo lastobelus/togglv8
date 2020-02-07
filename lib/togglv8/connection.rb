@@ -111,6 +111,15 @@ module TogglV8
       resp['data']
     end
 
+    def patch_v9(resource, ops)
+      full_resp = _call_api(debug_output: lambda { "PATCH #{resource} / #{ops}" },
+                  api_call: lambda { self.v9_conn.patch(resource, Oj.dump(ops)) } )
+      return {} if full_resp == {}
+      Oj.load(full_resp.body)
+    end
+
+    attr_reader :v9_conn
+
     def delete(resource)
       resource.gsub!('+', '%2B')
       full_resp = _call_api(debug_output: lambda { "DELETE #{resource}" },
