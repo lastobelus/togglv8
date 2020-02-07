@@ -54,6 +54,29 @@ module TogglV8
       full_resp
     end
 
+    def get_all(resource, params={})
+      resp = get_paginated(resource, params)
+      (2..resp[:pages]).reduce(resp[:data]) do |data, page_number|
+        data.concat(get(resource, params.merge(page: page_number)))
+      end
+    end
+
+    def get_paginated(resource, params={}, page=1)
+      query_params = params.map { |k,v| "#{k}=#{v}" }.join('&')
+      resource += "?#{query_params}" unless query_params.empty?
+      resource.gsub!('+', '%2B')
+      full_resp = _call_api(debug_output: lambda { "GET #{resource}" },
+                  api_call: lambda { self.conn.get(resource) } )
+      resp = Oj.load(full_resp.body)
+      total_cnt = resp['total_count']
+      per_page = resp['per_page']
+      pages = total_cnt / per_page
+      unless (total_cnt % per_page) == 0
+        pages = pages + 1
+      end
+      {data: resp['data'], pages: pages}
+    end
+
     def get(resource, params={})
       query_params = params.map { |k,v| "#{k}=#{v}" }.join('&')
       resource += "?#{query_params}" unless query_params.empty?
