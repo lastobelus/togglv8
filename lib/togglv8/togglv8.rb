@@ -16,6 +16,7 @@ module TogglV8
     include TogglV8::Connection
 
     TOGGL_API_V8_URL = TOGGL_API_URL + 'v8/'
+    TOGGL_API_V9_URL = TOGGL_API_URL + 'v9/'
 
     attr_reader :conn
 
@@ -38,6 +39,8 @@ module TogglV8
 
       @conn = TogglV8::Connection.open(username, password,
                 TOGGL_API_V8_URL, opts)
+      @v9_conn = TogglV8::Connection.open(username, password,
+                TOGGL_API_V9_URL, opts)
     end
   end
 end
